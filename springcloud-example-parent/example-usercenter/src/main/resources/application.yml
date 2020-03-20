@@ -1,0 +1,56 @@
+
+
+
+spring:
+  application:
+    name: example-usercenter
+
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://9228.starseaing.com:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false
+    username: root
+    password: my9228@starseaing
+
+  cache:
+    type: redis
+    redis:
+      cache-null-values: false
+      time-to-live: 3600000ms
+
+  redis:
+    host: 9228.starseaing.com
+    port: 6379
+    database: 7
+    password: myredis@starseaing
+
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+  main:
+    allow-bean-definition-overriding: true
+
+#????
+server:
+  port: 8881
+  servlet:
+    context-path: /usercenter
+
+mybatis-plus:
+  # xml地址
+  mapper-locations: classpath:mapper/*Mapper.xml
+  # 实体扫描，多个package用逗号或者分号分隔
+  type-aliases-package: com.starseaing.example.usercenter.model
+  configuration:
+    # 这个配置会将执行的sql打印出来，在开发或测试的时候可以用
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+logging:
+  level:
+    root: info
+    com.alibaba.nacos.client.naming: error
+
