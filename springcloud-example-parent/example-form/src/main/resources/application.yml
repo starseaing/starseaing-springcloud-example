@@ -5,7 +5,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://9228.starseaing.com:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false
+    url: jdbc:mysql://9228.starseaing.com:3306/activiti_test?useSSL=false&useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false
     username: root
     password: my9228@starseaing
 

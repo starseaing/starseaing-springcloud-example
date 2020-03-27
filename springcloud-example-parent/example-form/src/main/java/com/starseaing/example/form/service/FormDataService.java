@@ -51,10 +51,10 @@ public class FormDataService {
         return pageList;
     }
 
-    public FormData getFormDataByBusinessKeyAndFormKey(String businessKey, String formKey) {
+    public FormData getFormDataByBusinessKeyAndFormKey(String businessId, String formId) {
         QueryWrapper<FormData> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("BUSINESS_KEY", businessKey);
-        queryWrapper.eq("FORM_KEY", formKey);
+        queryWrapper.eq("BUSINESS_ID", businessId);
+        queryWrapper.eq("FORM_ID", formId);
 
         return formDataMapper.selectOne(queryWrapper);
     }

@@ -25,8 +25,8 @@ public class FormDataController {
      * @date 2020/03/23
      **/
     @GetMapping
-    public FormData getFormDataByBusinessKeyAndFormKey(@RequestParam String businessKey, @RequestParam String formKey){
-        return formDataService.getFormDataByBusinessKeyAndFormKey(businessKey, formKey);
+    public FormData getFormDataByBusinessIdAndFormId(@RequestParam String businessId, @RequestParam String formId){
+        return formDataService.getFormDataByBusinessKeyAndFormKey(businessId, formId);
     }
 
     /**
