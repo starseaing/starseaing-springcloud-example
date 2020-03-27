@@ -1,7 +1,7 @@
 package com.starseaing.example.gateway.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.starseaing.demo.gateway.model.DynamicRoute;
+import com.starseaing.example.gateway.model.DynamicRoute;
 import org.springframework.stereotype.Repository;
 
 /**

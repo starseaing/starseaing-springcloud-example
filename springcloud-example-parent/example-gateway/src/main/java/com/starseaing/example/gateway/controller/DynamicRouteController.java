@@ -2,10 +2,10 @@ package com.starseaing.example.gateway.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.starseaing.demo.gateway.dynamic.repository.DbRouteDefinitionRepository;
-import com.starseaing.demo.gateway.dynamic.service.DynamicRoutePublishService;
-import com.starseaing.demo.gateway.model.DynamicRoute;
-import com.starseaing.demo.gateway.service.DynamicRouteService;
+import com.starseaing.example.gateway.dynamic.repository.DbRouteDefinitionRepository;
+import com.starseaing.example.gateway.dynamic.service.DynamicRoutePublishService;
+import com.starseaing.example.gateway.model.DynamicRoute;
+import com.starseaing.example.gateway.service.DynamicRouteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.route.RouteDefinition;
 import org.springframework.web.bind.annotation.*;
