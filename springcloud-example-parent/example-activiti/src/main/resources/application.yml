@@ -4,13 +4,15 @@ spring:
     name: example-activiti
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://9228.starseaing.com:3306/test?useSSL=false&useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false
+    url: jdbc:mysql://9228.starseaing.com:3306/activiti_test?useSSL=false&useUnicode=true&characterEncoding=utf8&allowMultiQueries=true&autoReconnect=true&failOverReadOnly=false
     username: root
     password: my9228@starseaing
 
   activiti:
     check-process-definitions: false
     process-definition-location-prefix: classpath:/processes/
+    database-schema-update: true
+
   mvc:
     date-format: yyyy-MM-dd HH:mm:ss
 

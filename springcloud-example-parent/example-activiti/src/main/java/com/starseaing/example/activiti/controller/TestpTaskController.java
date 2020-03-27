@@ -1,6 +1,7 @@
 package com.starseaing.example.activiti.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializeConfig;
 import com.starseaing.example.activiti.dto.ProcessDefinitionDto;
@@ -9,10 +10,10 @@ import com.starseaing.example.activiti.dto.TaskDto;
 import com.starseaing.example.activiti.service.LeaveActivitiService;
 import com.starseaing.example.activiti.service.MyFormDataService;
 import com.starseaing.example.activiti.service.MyFormService;
-import org.activiti.engine.FormService;
-import org.activiti.engine.RepositoryService;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.TaskService;
+import org.activiti.engine.*;
+import org.activiti.engine.history.HistoricActivityInstance;
+import org.activiti.engine.history.HistoricProcessInstance;
+import org.activiti.engine.history.HistoricTaskInstance;
 import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * TODO
@@ -45,6 +47,11 @@ public class TestpTaskController {
 
     @Autowired(required = false)
     private RuntimeService runtimeService;
+
+
+    @Autowired(required = false)
+    private HistoryService historyService;
+
 
     @Autowired(required = false)
     private MyFormService myFormService;
@@ -110,13 +117,6 @@ public class TestpTaskController {
 
 
         //模拟发起流程申请
-
-        //第1个审批人操作
-
-        //第2个审批人操作
-
-        //第3个审批人操作
-
         JSONObject applyData = new JSONObject();
         String applyParamsJson = "{\n" +
                 "\t\"businessKey\": \"testp-busi-5\",\n" +
@@ -193,6 +193,18 @@ public class TestpTaskController {
 
         result.put("步骤2_发起流程申请", applyData);
 
+
+        //查询任务
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(businessKey).singleResult();
+        List<Task> taskList = taskService.createTaskQuery().processInstanceBusinessKey(businessKey).list();
+
+
+        //第1个审批人操作
+
+        //第2个审批人操作
+
+        //第3个审批人操作
+
         return result;
     }
 
@@ -223,10 +235,11 @@ public class TestpTaskController {
      * @param businessKey
      * @return
      */
-    public List<Task> getTaskList(String businessKey){
+    public List<TaskDto> getTaskList1(String businessKey){
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(businessKey).singleResult();
         List<Task> taskList = taskService.createTaskQuery().processInstanceBusinessKey(businessKey).list();
-        return taskList;
+        List<TaskDto> taskDtoList = taskList.stream().map(task ->  TaskDto.toTaskDto(task)).collect(Collectors.toList());
+        return taskDtoList;
     }
 
 
@@ -306,22 +319,216 @@ public class TestpTaskController {
      * @param assignee 用户id
      * @return
      */
-    @RequestMapping(value = "/tasks", method = RequestMethod.GET)
-    public JSONObject getTasks(@RequestParam String assignee) {
-        List<Task> tasks = leaveActivitiService.getTasks(assignee);
-        List<TaskDto> taskDtos = new ArrayList<TaskDto>();
-        for (Task task : tasks) {
-            taskDtos.add(TaskDto.builder()
-                    .id(task.getId())
-                    .name(task.getName())
-                    .formKey(task.getFormKey())
-                    .assignee(task.getAssignee())
-                    .build());
-        }
-
+    @GetMapping(value = "/task/list")
+    public JSONObject getTaskList(@RequestParam String assignee) {
+        List<Task> taskList = taskService.createTaskQuery().taskAssignee(assignee).orderByTaskCreateTime().desc().list();
+        List<TaskDto> taskDtoList = taskList.stream().map(task ->  TaskDto.toTaskDto(task)).collect(Collectors.toList());
         JSONObject result = new JSONObject();
         result.put("message", "获取任务成功");
-        result.put("taskList", taskDtos);
+        result.put("taskList", taskDtoList);
+        return result;
+    }
+    /**
+     * 根据任务id获取任务详情
+     * @param taskId 任务id
+     * @return
+     */
+    @GetMapping(value = "/task/complete")
+    public JSONObject completeTaskByTaskIdAndAssignee(@RequestParam String taskId, @RequestParam String assignee) {
+
+        JSONObject result = new JSONObject();
+
+        Task task = taskService.createTaskQuery().taskId(taskId).taskAssignee(assignee).singleResult();
+
+        if(task != null){
+            result.put("task", TaskDto.toTaskDto(task));
+            result.put("message", "获取任务成功");
+
+            Map<String, Object> params = new HashMap<String, Object>(4);
+            taskService.complete(taskId, params);
+
+            result.put("complete", "任务已完成");
+        }else{
+            result.put("message", "获取任务失败");
+        }
+
+        return result;
+    }
+    /**
+     * 根据任务id获取任务详情
+     * @param taskId 任务id
+     * @return
+     */
+    @GetMapping(value = "/task")
+    public JSONObject getTaskByTaskId(@RequestParam String taskId, @RequestParam String assignee) {
+        Task task = taskService.createTaskQuery().taskId(taskId).taskAssignee(assignee).singleResult();
+        JSONObject result = new JSONObject();
+        if(task != null){
+            result.put("message", "获取任务成功");
+            result.put("task", TaskDto.toTaskDto(task));
+
+            //走过的审批节点历程
+            List<HistoricActivityInstance> list = historyService.createHistoricActivityInstanceQuery()
+                    .processInstanceId(task.getProcessInstanceId())
+                    .orderByHistoricActivityInstanceStartTime().asc()
+                    .list();
+            JSONArray hpiList = new JSONArray();
+            for (HistoricActivityInstance hpi : list){
+                JSONObject hpiObj = new JSONObject();
+                hpiObj.put("id", hpi.getId());
+                hpiObj.put("activityName", hpi.getActivityName());
+                hpiObj.put("activityType", hpi.getActivityType());
+                hpiObj.put("assignee", hpi.getAssignee());
+                hpiObj.put("taskId", hpi.getTaskId());
+
+
+                if("userTask".equals(hpi.getActivityType())){
+                    //活动任务，需要通过 HistoricTaskInstance 去查询
+                    HistoricTaskInstance hti = historyService.createHistoricTaskInstanceQuery()
+                            .taskId(hpi.getTaskId()).singleResult();
+
+                    Object taskFormKey = hti.getFormKey();
+                    hpiObj.put("taskFormKey", taskFormKey);
+
+                    JSONObject formContent = null;
+
+                    if(taskFormKey != null){
+                        formContent = myFormService.getByFormId(String.valueOf(taskFormKey));
+                    }
+                    hpiObj.put("formContent", formContent);
+                    hpiObj.put("startFormKeyMsg", formContent != null ? "获取表单模板成功" : "没有找到对应的表单模板");
+
+                    if(formContent != null){
+                        //通过任务对象获取流程实例
+                        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+                        //通过流程实例获取“业务键”
+                        String businessKey = pi.getBusinessKey();
+
+                        JSONObject formData = myFormDataService.getFormData(businessKey, String.valueOf(taskFormKey));
+                        hpiObj.put("formData", formData);
+                        hpiObj.put("formDataMsg", formData != null ? "获取表单数据成功" : "没有找到对应的表单数据");
+                    }else{
+                        hpiObj.put("formDataMsg", "没有表单模板，不存在表单数据");
+                    }
+                }else{
+                    Object startFormKey = formService.getRenderedStartForm(hpi.getProcessDefinitionId(), "myFormEngine");
+                    hpiObj.put("startFormKey", startFormKey);
+
+                    JSONObject formContent = null;
+                    if(startFormKey != null){
+                        formContent = myFormService.getByFormId(String.valueOf(startFormKey));
+                    }
+                    hpiObj.put("formContent", formContent);
+                    hpiObj.put("startFormKeyMsg", formContent != null ? "获取表单模板成功" : "没有找到对应的表单模板");
+
+
+                    if(formContent != null){
+                        //2  通过任务对象获取流程实例
+                        ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(task.getProcessInstanceId()).singleResult();
+                        //3 通过流程实例获取“业务键”
+                        String businessKey = pi.getBusinessKey();
+
+                        JSONObject formData = myFormDataService.getFormData(businessKey, String.valueOf(startFormKey));
+                        hpiObj.put("formData", formData);
+                        hpiObj.put("formDataMsg", formData != null ? "获取表单数据成功" : "没有找到对应的表单数据");
+                    }else{
+                        hpiObj.put("formDataMsg", "没有表单模板，不存在表单数据");
+                    }
+                }
+
+                hpiList.add(hpiObj);
+            }
+
+            result.put("hpiList", hpiList);
+        }else{
+            result.put("message", "获取任务失败");
+        }
+
+        return result;
+    }
+
+    /**
+     * 根据业务id获取实例的所有详情
+     * @param businessId 业务id
+     * @return
+     */
+    @GetMapping(value = "/business")
+    public JSONObject getTaskBybusinessId(@RequestParam String businessId) {
+        JSONObject result = new JSONObject();
+        HistoricProcessInstance hpi = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceBusinessKey(businessId)
+                .singleResult();
+        if(hpi != null){
+            result.put("message", "获取实例成功");
+            //result.put("hpi", HistoricProcessInstanceDto.toHistoricProcessInstanceDto(hpi));
+
+            //走过的审批节点历程
+            List<HistoricActivityInstance> list = historyService.createHistoricActivityInstanceQuery()
+                    .processInstanceId(hpi.getId())
+                    .orderByHistoricActivityInstanceStartTime().asc()
+                    .list();
+            JSONArray hpiList = new JSONArray();
+            for (HistoricActivityInstance hacti : list){
+                JSONObject hpiObj = new JSONObject();
+                hpiObj.put("id", hacti.getId());
+                hpiObj.put("activityName", hacti.getActivityName());
+                hpiObj.put("activityType", hacti.getActivityType());
+                hpiObj.put("assignee", hacti.getAssignee());
+                hpiObj.put("taskId", hacti.getTaskId());
+
+
+                if("userTask".equals(hacti.getActivityType())){
+                    //活动任务，需要通过 HistoricTaskInstance 去查询
+                    HistoricTaskInstance hti = historyService.createHistoricTaskInstanceQuery()
+                            .taskId(hacti.getTaskId()).singleResult();
+
+                    Object taskFormKey = hti.getFormKey();
+                    hpiObj.put("taskFormKey", taskFormKey);
+
+                    JSONObject formContent = null;
+
+                    if(taskFormKey != null){
+                        formContent = myFormService.getByFormId(String.valueOf(taskFormKey));
+                    }
+                    hpiObj.put("formContent", formContent);
+                    hpiObj.put("startFormKeyMsg", formContent != null ? "获取表单模板成功" : "没有找到对应的表单模板");
+
+                    if(formContent != null){
+                        JSONObject formData = myFormDataService.getFormData(businessId, String.valueOf(taskFormKey));
+                        hpiObj.put("formData", formData);
+                        hpiObj.put("formDataMsg", formData != null ? "获取表单数据成功" : "没有找到对应的表单数据");
+                    }else{
+                        hpiObj.put("formDataMsg", "没有表单模板，不存在表单数据");
+                    }
+                }else{
+                    Object startFormKey = formService.getRenderedStartForm(hacti.getProcessDefinitionId(), "myFormEngine");
+                    hpiObj.put("startFormKey", startFormKey);
+
+                    JSONObject formContent = null;
+                    if(startFormKey != null){
+                        formContent = myFormService.getByFormId(String.valueOf(startFormKey));
+                    }
+                    hpiObj.put("formContent", formContent);
+                    hpiObj.put("startFormKeyMsg", formContent != null ? "获取表单模板成功" : "没有找到对应的表单模板");
+
+                    if(formContent != null){
+
+                        JSONObject formData = myFormDataService.getFormData(businessId, String.valueOf(startFormKey));
+                        hpiObj.put("formData", formData);
+                        hpiObj.put("formDataMsg", formData != null ? "获取表单数据成功" : "没有找到对应的表单数据");
+                    }else{
+                        hpiObj.put("formDataMsg", "没有表单模板，不存在表单数据");
+                    }
+                }
+
+                hpiList.add(hpiObj);
+            }
+
+            result.put("hpiList", hpiList);
+        }else{
+            result.put("message", "获取任务失败");
+        }
+
         return result;
     }
 

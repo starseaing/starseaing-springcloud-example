@@ -18,7 +18,7 @@ public interface MyFormDataService {
      * @date 2020/03/23
      **/
     @GetMapping
-    public JSONObject getFormData(@RequestParam String businessKey, @RequestParam String formKey);
+    public JSONObject getFormData(@RequestParam String businessId, @RequestParam String formId);
 
     /**
      * 新增表单数据
