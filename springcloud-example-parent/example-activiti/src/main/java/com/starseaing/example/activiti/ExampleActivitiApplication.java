@@ -1,6 +1,5 @@
 package com.starseaing.example.activiti;
 
-import jdk.nashorn.internal.runtime.arrays.ArrayLikeIterator;
 import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.repository.Deployment;

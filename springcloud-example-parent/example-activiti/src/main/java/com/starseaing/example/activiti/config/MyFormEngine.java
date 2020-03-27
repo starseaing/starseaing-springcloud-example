@@ -6,7 +6,7 @@ import org.activiti.engine.form.TaskFormData;
 import org.activiti.engine.impl.form.FormEngine;
 
 /**
- * TODO
+ * 自定义表单引擎：主要是去掉自带的表单操作。通过formKey去表单系统查询表单模板和表单数据进行替换。
  *
  * @author chentc
  * @since 2020/3/25
