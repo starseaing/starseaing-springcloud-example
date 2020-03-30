@@ -14,7 +14,8 @@ import java.util.List;
 /**
  * 此处需要排除SecurityAutoConfiguration这个类，不然activiti会报错
  */
-@SpringBootApplication(exclude = {org.activiti.spring.boot.SecurityAutoConfiguration.class})
+@SpringBootApplication(exclude = {org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
+                                  org.activiti.spring.boot.SecurityAutoConfiguration.class})
 @MapperScan("com.starseaing.example.activiti.mapper")
 @EnableFeignClients
 public class ExampleActivitiApplication {
@@ -24,7 +25,7 @@ public class ExampleActivitiApplication {
         deploymentProcessDefinition();
     }
 
-    public static void deploymentProcessDefinition(){
+    public static void deploymentProcessDefinition() {
 
         ProcessEngine pe = ProcessEngines.getDefaultProcessEngine();
 
@@ -49,13 +50,13 @@ public class ExampleActivitiApplication {
                 .deploy();
         list.add(dy2);
 
-        list.forEach(deployment ->{
-            System.out.println("部署流程ID: "+deployment.getId());
-            System.out.println("类别: "+deployment.getCategory());
-            System.out.println("名称: "+deployment.getName());
-            System.out.println("租户: "+deployment.getTenantId());
-            System.out.println("部署流程entity: "+deployment.getClass());
-            System.out.println("部署流程时间: "+deployment.getDeploymentTime());
+        list.forEach(deployment -> {
+            System.out.println("部署流程ID: " + deployment.getId());
+            System.out.println("类别: " + deployment.getCategory());
+            System.out.println("名称: " + deployment.getName());
+            System.out.println("租户: " + deployment.getTenantId());
+            System.out.println("部署流程entity: " + deployment.getClass());
+            System.out.println("部署流程时间: " + deployment.getDeploymentTime());
             System.out.println("______________________________________________________________");
         });
 
