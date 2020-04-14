@@ -31,7 +31,10 @@ public class ActivitiConfig implements ProcessEngineConfigurationConfigurer {
     @Autowired
     private McubeGroupEntityManagerFactory mcubeGroupEntityManagerFactory;
 
-    //rest service
+    /**
+     * rest service 需要注册这2个bean
+     * @return
+     */
     @Bean
     public RestResponseFactory restResponseFactory(){
         return new RestResponseFactory();
@@ -59,7 +62,5 @@ public class ActivitiConfig implements ProcessEngineConfigurationConfigurer {
         mcubeSessionFactories.add(mcubeGroupEntityManagerFactory);
 
         processEngineConfiguration.setCustomSessionFactories(mcubeSessionFactories);
-
     }
-
 }

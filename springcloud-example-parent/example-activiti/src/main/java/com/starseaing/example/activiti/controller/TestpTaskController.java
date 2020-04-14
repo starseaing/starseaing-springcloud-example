@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
  * @since 2020/3/26
  */
 @RestController
-@RequestMapping(("/testp"))
+@RequestMapping("/testp")
 public class TestpTaskController {
 
     @Autowired
@@ -62,13 +62,15 @@ public class TestpTaskController {
      *
      * @return
      */
-    @GetMapping(value = "/test")
-    public JSONObject test() {
+    @GetMapping(value = "/test/{id}")
+    public JSONObject test(@PathVariable String id) {
         JSONObject data = new JSONObject();
         JSONObject form = myFormService.getByFormId("1");
 
+        data.put("id", id);
+        data.put("who", "这是activiti服务");
         data.put("form", form);
-        data.put("form-list", myFormService.page(new JSONObject(), 0, 10));
+        data.put("formData", myFormDataService.getFormData("business-" + new Random().nextInt(1000000), "form-test"));
 
         return data;
     }

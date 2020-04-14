@@ -1,0 +1,34 @@
+
+spring:
+  application:
+    name: example-oa
+
+  cloud:
+    nacos:
+      config:
+        server-addr: 127.0.0.1:8848
+        file-extension: yaml
+      discovery:
+        server-addr: 127.0.0.1:8848
+
+  main:
+    allow-bean-definition-overriding: true
+
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 20000
+        read-timeout: 20000
+
+server:
+  port: 8884
+  servlet:
+    context-path: /oa
+
+
+logging:
+  level:
+    root: info
+    com.alibaba.nacos.client.naming: error
+

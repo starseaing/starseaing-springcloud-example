@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 表单数据服务
  *
@@ -25,6 +27,15 @@ public class FormDataService {
     public FormData insert(FormData formData) {
         int ret = formDataMapper.insert(formData);
         return formData;
+    }
+
+    /**
+     * 批量插入
+     * @param list
+     * @return
+     */
+    public int batchInsert(List<FormData> list){
+        return  formDataMapper.batchInsert(list);
     }
 
     public FormData delete(String id) {

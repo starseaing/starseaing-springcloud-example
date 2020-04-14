@@ -3,16 +3,10 @@ package com.starseaing.example.activiti.mcubeuser;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.starseaing.example.activiti.config.FeignConfiguration;
-import org.activiti.engine.identity.Group;
-import org.activiti.engine.identity.User;
-import org.activiti.engine.impl.Page;
-import org.activiti.engine.impl.UserQueryImpl;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
 
 /**
  * TODO
@@ -36,14 +30,7 @@ public interface McubeUserService{
 
 
     /**
-     * http://192.168.16.191:6100/dashboard/doc#/api/role-page
-         参数名 	类型 	必填 	默认值 	说明
-         pageIndex 	Long 	否 	1 	分页索引
-         pageSize 	Long 	否 	20 	分页大小
-         name 	String 	否 	无 	角色名称
-         code 	String 	否 	无 	角色标识
-         enabled 	Integer 	否 	无 	状态：0-禁用，1-启用
-         appId 	String 	是 	无 	系统编码
+     * 分页获取角色
      * @param pageIndex
      * @param pageSize
      * @param name
@@ -63,6 +50,12 @@ public interface McubeUserService{
                                               @RequestHeader(name = "cookie") String cookie);
 
 
+    /**
+     * 根据用户ID获取角色分组
+     * @param id
+     * @param cookie
+     * @return
+     */
     @GetMapping("/api/accounts/management/details")
     public JSONArray findGroupsByUser(@RequestParam String id,
                              @RequestHeader(name = "cookie") String cookie);

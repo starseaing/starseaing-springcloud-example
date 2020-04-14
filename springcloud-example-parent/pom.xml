@@ -18,6 +18,7 @@
         <module>example-mall</module>
         <module>example-oa</module>
         <module>example-gateway</module>
+        <module>example-activiti</module>
     </modules>
 
     <parent>

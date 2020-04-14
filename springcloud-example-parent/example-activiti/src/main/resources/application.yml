@@ -28,6 +28,13 @@ spring:
     allow-bean-definition-overriding: true
 
 
+feign:
+  client:
+    config:
+      default:
+        connect-timeout: 20000
+        read-timeout: 20000
+
 server:
   port: 8883
   servlet:
